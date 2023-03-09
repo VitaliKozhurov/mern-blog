@@ -1,9 +1,10 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import multer from 'multer';
+import cors from 'cors';
 import { registerValidation, loginValidation, postCreateValidation } from './validations/validations.js';
 import { login, register, getMe } from './controllers/UserController.js';
-import { create, getAll, getOne, remove, update } from './controllers/PostController.js';
+import { create, getAll, getOne, remove, update, getLastTags } from './controllers/PostController.js';
 import { checkAuth, handleValidationError } from './utils/index.js';
 
 // Подключение к базе данных Mongo DB
@@ -27,7 +28,7 @@ const upload = multer({ storage });
 
 app.use(express.json()); // чтобы веб-сервер понимал JSON формат
 app.use('/uploads', express.static('uploads')); // если запрос приходит на uploads перенаправляем его в папку uploads для поиска файлы в этой папке
-
+app.use(cors());
 
 app.get('/', (req, res) => {
    // req хранит, информ. от клиента
@@ -48,6 +49,7 @@ app.post('/upload', checkAuth, upload.single('image'), (req, res) => {
       url: `/uploads/${req.file.originalname}`,
    })
 });
+app.get('/tags', getLastTags);
 // первый параметр номер порта
 app.listen(4440, (err) => {
    if (err) {
